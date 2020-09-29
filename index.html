@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <title>Swipe Widget | Sample | ArcGIS API for JavaScript 4.16</title>
+
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.16/esri/themes/light/main.css"
+    />
+    <script src="https://js.arcgis.com/4.16/"></script>
+    <style>
+      html,
+      body,
+      #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+	  #expand{
+		background-color: #ffffff;
+		}
+    </style>
+
+    <script>
+      require([
+        "esri/Map",
+        "esri/views/MapView",
+        "esri/layers/TileLayer",
+        "esri/widgets/LayerList",
+        "esri/widgets/Swipe",
+        "esri/widgets/Expand",
+		"esri/layers/ImageryLayer",
+		"esri/widgets/Legend"
+      ], function (Map, MapView, TileLayer, LayerList, Swipe, Expand, ImageryLayer, Legend) {
+        const map = new Map({
+          basemap: "satellite"
+        });
+
+
+    		const terrainLayer = new ImageryLayer({
+    		 url: "https://image-services-gtac.fs.usda.gov/arcgis/rest/services/Terrain_Region04/UT_Fishlake_NF_BE_Hillshade/ImageServer",
+    		 title:"Terrain Surface",
+			 id: "0"
+    		});
+    		map.add(terrainLayer);
+    		
+    		const canopyLayer = new ImageryLayer({
+    		 url: "https://image-services-gtac.fs.usda.gov/arcgis/rest/services/Terrain_Region04/UT_Fishlake_NF_HH_Hillshade/ImageServer",
+    		 title:"Canopy Surface",
+			 id: "1"
+    		});
+    		map.add(canopyLayer);
+			
+			const chLayer = new TileLayer({
+    		 url: "https://tiles.arcgis.com/tiles/gGHDlz6USftL5Pau/arcgis/rest/services/MonroeMtnLidarCanopyHeight/MapServer",
+    		 title:"Canopy Height",
+			 visible: false,
+			 id: "2"
+    		});
+    		map.add(chLayer);
+			
+			const tvLayer = new TileLayer({
+    		 url: "https://tiles.arcgis.com/tiles/gGHDlz6USftL5Pau/arcgis/rest/services/MonroeMtnLidarTimberVolume/MapServer",
+    		 title:"Timber Volume",
+			 visible: false,
+			 id: "3"
+    		});
+    		map.add(tvLayer);
+			
+			const baLayer = new TileLayer({
+    		 url: "https://tiles.arcgis.com/tiles/gGHDlz6USftL5Pau/arcgis/rest/services/MonroeMtnLidarBasalArea/MapServer",
+    		 title:"Basal Area",
+			 visible: false,
+			 id: "4"
+    		});
+    		map.add(baLayer);
+			
+			const tpaLayer = new TileLayer({
+    		 url: "https://tiles.arcgis.com/tiles/gGHDlz6USftL5Pau/arcgis/rest/services/MonroeMtnLidarTreesPerAcre/MapServer",
+    		 title:"Trees Per Acre",
+			 visible: false,
+			 id: "5"
+    		});
+    		map.add(tpaLayer);
+			
+			const biomassLayer = new TileLayer({
+    		 url: "https://tiles.arcgis.com/tiles/gGHDlz6USftL5Pau/arcgis/rest/services/MonroeMtnLidarTotalStandingTreeBiomass/MapServer",
+    		 title:"Biomass",
+			 visible: false,
+			 id: "6"
+    		});
+    		map.add(biomassLayer);
+			
+			const sdiLayer = new TileLayer({
+    		 url: "https://tiles.arcgis.com/tiles/gGHDlz6USftL5Pau/arcgis/rest/services/MonroeMtnLidarStandDensityIndex/MapServer",
+    		 title:"Stand Density Index",
+			 visible: false,
+			 id: "7"
+    		});
+    		map.add(sdiLayer);
+			
+			const qmdLayer = new TileLayer({
+    		 url: "https://tiles.arcgis.com/tiles/gGHDlz6USftL5Pau/arcgis/rest/services/MonroeMtnLidarQuadraticMeanDiameter/MapServer",
+    		 title:"Quadradic Mean Diameter",
+			 visible: false,
+			 id: "8"
+    		});
+    		map.add(qmdLayer);
+			
+			const cbhLayer = new TileLayer({
+    		 url: "https://tiles.arcgis.com/tiles/gGHDlz6USftL5Pau/arcgis/rest/services/MonroeMtnCanopyBulkDensity/MapServer",
+    		 title:"Canopy Bulk Density",
+			 visible: false,
+			 id: "9"
+    		});
+    		map.add(cbhLayer);
+
+        const view = new MapView({
+          container: "viewDiv",
+          map: map,
+          ui: {components: ["attribution"]},
+          zoom: 15,
+          center: [-112.039, 38.539], // longitude, latitude
+          constraints: {
+            maxZoom: 17
+          } 
+        });
+		
+		var ddRight = document.getElementById("ddRight");
+		ddRight.style.display = "block";
+        const expandRight = new Expand({
+          view: view,
+          content: ddRight,
+          expanded: true
+        });
+		var ddLeft = document.getElementById("ddLeft");
+		ddLeft.style.display = "block";
+		
+        const expandLeft = new Expand({
+          view: view,
+          content: ddLeft,
+          expanded: true
+        });
+		view.ui.add(expandRight, "top-right");
+        view.ui.add(expandLeft, "top-left");
+
+		var legend = new Legend({
+		  view: view
+		});
+		view.ui.add(legend, "bottom-right");
+        // create a new Swipe widget
+        const swipe = new Swipe({
+          leadingLayers: [terrainLayer],
+          trailingLayers: [canopyLayer],
+          position: 50, // set position of widget to 35%
+          view: view
+        });
+
+        // add the widget to the view
+        view.ui.add(swipe);
+		
+		var rSelect = document.getElementById("rSelect");
+		var lSelect = document.getElementById("lSelect");
+		
+		rSelect.addEventListener("change",function(){
+			changeSwipeRight(rSelect.value,lSelect.value);
+			});
+		function changeSwipeRight(rc,lc){		
+			turnOffLayers(rc,lc);
+			swipe.trailingLayers = [view.map.findLayerById(rc)];
+			swipe.leadingLayers = [view.map.findLayerById(lc)];
+			legend.destroy();
+			legend = new Legend({
+				view: view,
+				layerInfos:[{layer:view.map.findLayerById(rc)},{layer:view.map.findLayerById(lc)}]
+				});
+			view.ui.add(legend, "bottom-right");
+			swipe.position = swipe.position+.25;
+			}
+		function turnOffLayers(r,l){
+			var IDs = ["0","1","2","3","4","5","6","7","8","9"];
+			rr = parseInt(r);
+			rl = parseInt(l);
+			IDs.splice(rl,1);
+			IDs.splice(rr,1);
+			IDs.forEach(function(ID){
+				view.map.findLayerById(ID).visible = false;
+			});
+			view.map.findLayerById(r).visible = true;
+			view.map.findLayerById(l).visible = true;
+			console.log("Right Visible: ", view.map.findLayerById(r).title);
+			console.log("Left Visible: ", view.map.findLayerById(l).title);
+		}
+		
+		lSelect.addEventListener("change",function(){
+			changeSwipeLeft(lSelect.value,rSelect.value);
+			});
+		function changeSwipeLeft(lc,rc){		
+			turnOffLayers(lc,rc);
+			swipe.trailingLayers = [view.map.findLayerById(rc)];
+			swipe.leadingLayers = [view.map.findLayerById(lc)];
+			legend.destroy();
+			legend = new Legend({
+				view: view,
+				layerInfos:[{layer:view.map.findLayerById(rc)},{layer:view.map.findLayerById(lc)}]
+				});
+			view.ui.add(legend, "bottom-right");
+			swipe.position = swipe.position+.25;
+			}
+		function turnOffLayers(l,r){
+			var IDs = ["0","1","2","3","4","5","6","7","8","9"];
+			rr = parseInt(r);
+			rl = parseInt(l);
+			IDs.splice(rl,1);
+			IDs.splice(rr,1);
+			IDs.forEach(function(ID){
+				view.map.findLayerById(ID).visible = false;
+			});
+			view.map.findLayerById(r).visible = true;
+			view.map.findLayerById(l).visible = true;
+			console.log("Right Visible: ", view.map.findLayerById(r).title);
+			console.log("Left Visible: ", view.map.findLayerById(l).title);
+		}
+      });
+    </script>
+  </head>
+
+  <body>
+    <div id="viewDiv"></div>
+	<div id="ddRight" style='background-color:#ffffff;padding:20px;color:black;display:none;'>
+		<select name='rSelect' id='rSelect'>
+		  <option value='0'>Terrain Surface</option>
+		  <option value='1' selected>Canopy Surface</option>
+		  <option value='2'>Canopy Height</option>
+		  <option value='3'>Timber Volume</option>
+		  <option value='4'>Basal Area</option>
+		  <option value='5'>Trees Per Acre</option>
+		  <option value='6'>Biomass</option>
+		  <option value='7'>Stand Density Index</option>
+		  <option value='8'>Quadratic Mean Diameter</option>
+		  <option value='9'>Canopy Bulk Density</option>
+		</select>
+	</div>
+		<div id="ddLeft" style='background-color:#ffffff;padding:20px;color:black;display:none;'>
+		<select name='lSelect' id='lSelect'>
+		  <option value='0' selected>Terrain Surface</option>
+		  <option value='1'>Canopy Surface</option>
+		  <option value='2'>Canopy Height</option>
+		  <option value='3'>Timber Volume</option>
+		  <option value='4'>Basal Area</option>
+		  <option value='5'>Trees Per Acre</option>
+		  <option value='6'>Biomass</option>
+		  <option value='7'>Stand Density Index</option>
+		  <option value='8'>Quadratic Mean Diameter</option>
+		  <option value='9'>Canopy Bulk Density</option>
+		</select>
+	</div>
+  </body>
+</html>
